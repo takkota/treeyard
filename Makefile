@@ -14,9 +14,9 @@ build:
 
 install: build
 	@mkdir -p $(PREFIX)/bin
-	cp target/release/worktree-compose $(PREFIX)/bin/worktree-compose
-	@echo "Installed to $(PREFIX)/bin/worktree-compose"
+	cp target/release/treeyard $(PREFIX)/bin/treeyard
+	@echo "Installed to $(PREFIX)/bin/treeyard"
 
 uninstall:
-	rm -f $(PREFIX)/bin/worktree-compose
-	@echo "Removed $(PREFIX)/bin/worktree-compose"
+	rm -f $(PREFIX)/bin/treeyard
+	@echo "Removed $(PREFIX)/bin/treeyard"

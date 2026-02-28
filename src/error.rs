@@ -11,7 +11,7 @@ pub enum Error {
     #[error("failed to parse slot registry at {path}: {reason}")]
     SlotRegistryCorrupt { path: PathBuf, reason: String },
 
-    #[error("this worktree is not initialized (run 'worktree-compose init' first)")]
+    #[error("this worktree is not initialized (run 'treeyard init' first)")]
     NotInitialized,
 
     #[error("failed to execute git command: {0}")]

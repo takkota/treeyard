@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(
-    name = "worktree-compose",
+    name = "treeyard",
     version,
     about = "Manage Docker Compose environments across git worktrees"
 )]

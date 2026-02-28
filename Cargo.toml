@@ -1,5 +1,5 @@
 [package]
-name = "worktree-compose"
+name = "treeyard"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.80"
@@ -7,11 +7,11 @@ description = "Manage Docker Compose environments across git worktrees"
 license = "MIT"
 
 [[bin]]
-name = "worktree-compose"
+name = "treeyard"
 path = "src/main.rs"
 
 [[bin]]
-name = "wtc"
+name = "tyd"
 path = "src/main.rs"
 
 [dependencies]

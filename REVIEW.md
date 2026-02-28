@@ -1,7 +1,7 @@
-# worktree-compose OSS公開前 総合レビュー
+# treeyard OSS公開前 総合レビュー
 
 **レビュー日**: 2026-02-26
-**対象**: worktree-compose v0.1.0 (全ソースコード 3,660行 / テスト含む)
+**対象**: treeyard v0.1.0 (全ソースコード 3,660行 / テスト含む)
 
 ---
 
@@ -112,7 +112,7 @@ Docker ネットワーク作成の失敗がユーザーに通知されない。D
 
 ### 2.3 `cleanup` コマンドが `.env` をクリーンアップしない
 
-`wtc cleanup` はスロット登録と override ファイルを削除するが、`.env` に書き込まれたポート変数・`COMPOSE_PROJECT_NAME` はそのまま残る。再 init 時に古い値との混乱が生じる可能性がある。
+`tydcleanup` はスロット登録と override ファイルを削除するが、`.env` に書き込まれたポート変数・`COMPOSE_PROJECT_NAME` はそのまま残る。再 init 時に古い値との混乱が生じる可能性がある。
 
 ### 2.4 `prune` コマンドが override ファイルをクリーンアップしない
 
@@ -141,9 +141,9 @@ Docker ネットワーク作成の失敗がユーザーに通知されない。D
 ### 3.1 CLI の利便性向上
 
 - `--verbose` / `--quiet` フラグがない (デバッグ情報の制御不可)
-- `wtc status` にフィルタリングオプションがない
-- `wtc env` に `--json` / `--shell` 出力形式オプションがない
-- `wtc prune` に `--dry-run` オプションがない
+- `tydstatus` にフィルタリングオプションがない
+- `tydenv` に `--json` / `--shell` 出力形式オプションがない
+- `tydprune` に `--dry-run` オプションがない
 
 ### 3.2 Git エラー検出の脆弱性
 
@@ -258,7 +258,7 @@ Git のエラーメッセージ文字列にマッチしているため、Git の
 
 ### 将来的な検討 (P3)
 
-13. `wtc env --json` 出力対応
-14. `wtc prune --dry-run` オプション
+13. `tydenv --json` 出力対応
+14. `tydprune --dry-run` オプション
 15. CHANGELOG.md / CONTRIBUTING.md の整備
 16. Windows サポートの検証・文書化

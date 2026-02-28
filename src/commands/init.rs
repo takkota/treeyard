@@ -25,13 +25,13 @@ pub fn run(cli: &Cli) -> Result<()> {
         let svc_upper = hp.service.replace('-', "_").to_uppercase();
         eprintln!(
             "{} Service '{}' has hardcoded port {} — cannot auto-offset.",
-            "[worktree-compose]".yellow(),
+            "[treeyard]".yellow(),
             hp.service,
             hp.host_port
         );
         eprintln!(
             "{}   Tip: change to ${{{}_PORT:-{}}}:{} in docker-compose.yml",
-            "[worktree-compose]".yellow(),
+            "[treeyard]".yellow(),
             svc_upper,
             hp.host_port,
             hp.container_port
@@ -42,7 +42,7 @@ pub fn run(cli: &Cli) -> Result<()> {
     for vol in &info.fixed_name_volumes {
         eprintln!(
             "{} Volume '{}' has fixed name '{}' — overriding to ${{COMPOSE_PROJECT_NAME}}_{}",
-            "[worktree-compose]".yellow(),
+            "[treeyard]".yellow(),
             vol.key,
             vol.name,
             vol.key
@@ -53,7 +53,7 @@ pub fn run(cli: &Cli) -> Result<()> {
     for fc in &info.fixed_container_names {
         eprintln!(
             "{} Service '{}' has fixed container_name '{}' — overriding to ${{COMPOSE_PROJECT_NAME}}-{}",
-            "[worktree-compose]".yellow(),
+            "[treeyard]".yellow(),
             fc.service,
             fc.name,
             fc.service
@@ -64,7 +64,7 @@ pub fn run(cli: &Cli) -> Result<()> {
     for fh in &info.fixed_hostnames {
         eprintln!(
             "{} Service '{}' has fixed hostname '{}' — overriding to ${{COMPOSE_PROJECT_NAME}}-{}",
-            "[worktree-compose]".yellow(),
+            "[treeyard]".yellow(),
             fh.service,
             fh.hostname,
             fh.service
@@ -81,7 +81,7 @@ pub fn run(cli: &Cli) -> Result<()> {
         if let Some(fc) = target {
             eprintln!(
                 "{} Service '{}' has {}: \"container:{}\" — rewriting to \"service:{}\"",
-                "[worktree-compose]".yellow(),
+                "[treeyard]".yellow(),
                 cr.service,
                 cr.directive,
                 cr.referenced_name,
@@ -90,7 +90,7 @@ pub fn run(cli: &Cli) -> Result<()> {
         } else {
             eprintln!(
                 "{} Service '{}' has {}: \"container:{}\" — referenced container not found in this compose file, cannot auto-rewrite",
-                "[worktree-compose]".yellow(),
+                "[treeyard]".yellow(),
                 cr.service,
                 cr.directive,
                 cr.referenced_name
@@ -102,7 +102,7 @@ pub fn run(cli: &Cli) -> Result<()> {
     for w in &info.warnings {
         eprintln!(
             "{} Service '{}' uses {} — {}",
-            "[worktree-compose]".yellow(),
+            "[treeyard]".yellow(),
             w.service,
             w.directive,
             w.message
@@ -112,11 +112,11 @@ pub fn run(cli: &Cli) -> Result<()> {
     if info.port_mappings.is_empty() {
         eprintln!(
             "{} No port variables detected in docker-compose.yml.",
-            "[worktree-compose]".yellow()
+            "[treeyard]".yellow()
         );
         eprintln!(
             "{}   Use ${{VAR:-DEFAULT}}:CONTAINER format for auto-detection.",
-            "[worktree-compose]".yellow()
+            "[treeyard]".yellow()
         );
     }
 
@@ -130,7 +130,7 @@ pub fn run(cli: &Cli) -> Result<()> {
             .unwrap_or_else(|| "project".to_string());
         eprintln!(
             "{} Could not detect project prefix, using directory name: {}",
-            "[worktree-compose]".yellow(),
+            "[treeyard]".yellow(),
             name
         );
         name
@@ -144,11 +144,7 @@ pub fn run(cli: &Cli) -> Result<()> {
         } else {
             "empty"
         };
-        eprintln!(
-            "{} Created .env from {}",
-            "[worktree-compose]".blue(),
-            source
-        );
+        eprintln!("{} Created .env from {}", "[treeyard]".blue(), source);
     }
 
     let main_root = wt.main_worktree_root();
@@ -160,12 +156,12 @@ pub fn run(cli: &Cli) -> Result<()> {
             if let Err(e) = auto_init_main(cli, &wt, &project_prefix) {
                 eprintln!(
                     "{} Could not auto-initialize main worktree: {}",
-                    "[worktree-compose]".yellow(),
+                    "[treeyard]".yellow(),
                     e
                 );
                 eprintln!(
-                    "{}   Run 'worktree-compose init' in the main worktree manually if needed.",
-                    "[worktree-compose]".yellow(),
+                    "{}   Run 'treeyard init' in the main worktree manually if needed.",
+                    "[treeyard]".yellow(),
                 );
             }
         }
@@ -215,7 +211,7 @@ pub fn run(cli: &Cli) -> Result<()> {
         .unwrap_or_default();
     eprintln!(
         "{} Initializing {} worktree: {}",
-        "[worktree-compose]".blue(),
+        "[treeyard]".blue(),
         wt_type,
         wt_name
     );
@@ -265,11 +261,7 @@ pub fn run(cli: &Cli) -> Result<()> {
 
     // Print summary
     eprintln!();
-    eprintln!(
-        "{} Slot {} assigned",
-        "[worktree-compose]".green(),
-        slot.bold()
-    );
+    eprintln!("{} Slot {} assigned", "[treeyard]".green(), slot.bold());
     eprintln!("   COMPOSE_PROJECT_NAME={}", project_name.cyan());
     for a in &assignments {
         if a.is_shared {
@@ -317,7 +309,7 @@ pub fn run(cli: &Cli) -> Result<()> {
         if created {
             eprintln!(
                 "{} Created shared network: {}",
-                "[worktree-compose]".blue(),
+                "[treeyard]".blue(),
                 shared_network
             );
         }
@@ -325,21 +317,21 @@ pub fn run(cli: &Cli) -> Result<()> {
 
     eprintln!(
         "{} Generated docker-compose.override.yml (shared network: {})",
-        "[worktree-compose]".blue(),
+        "[treeyard]".blue(),
         shared_network
     );
 
     eprintln!();
     eprintln!(
         "{} Done! Run {} to start services.",
-        "[worktree-compose]".green(),
+        "[treeyard]".green(),
         "docker compose up -d".bold()
     );
 
     Ok(())
 }
 
-/// Auto-initialize the main worktree when a linked worktree runs `wtc init`
+/// Auto-initialize the main worktree when a linked worktree runs `tyd init`
 /// and main has not been initialized yet. This generates
 /// `docker-compose.override.yml` for main and sets up shared service profiles
 /// if needed, so the user never has to explicitly init the main worktree.
@@ -381,7 +373,7 @@ fn auto_init_main(cli: &Cli, wt: &worktree::WorktreeInfo, project_prefix: &str) 
 
     eprintln!(
         "{} Auto-initialized main worktree (generated docker-compose.override.yml in {})",
-        "[worktree-compose]".blue(),
+        "[treeyard]".blue(),
         main_root.display()
     );
 
@@ -416,7 +408,7 @@ fn resolve_main_compose_path(
         }
         eprintln!(
             "{} --file '{}' not found in main worktree, using docker-compose.yml",
-            "[worktree-compose]".yellow(),
+            "[treeyard]".yellow(),
             file.display()
         );
     }

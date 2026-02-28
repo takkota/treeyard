@@ -20,11 +20,7 @@ pub fn run() -> Result<()> {
         .map(|n| n.to_string_lossy().to_string())
         .unwrap_or_default();
 
-    eprintln!(
-        "{} Removed slot for: {}",
-        "[worktree-compose]".green(),
-        name
-    );
+    eprintln!("{} Removed slot for: {}", "[treeyard]".green(), name);
 
     Ok(())
 }

@@ -15,20 +15,20 @@ pub fn run() -> Result<()> {
         for entry in &pruned {
             eprintln!(
                 "{} Pruned stale slot {}: {}",
-                "[worktree-compose]".yellow(),
+                "[treeyard]".yellow(),
                 entry.slot,
                 entry.path.display()
             );
         }
         eprintln!(
             "{} Pruned {} stale entries",
-            "[worktree-compose]".green(),
+            "[treeyard]".green(),
             pruned.len()
         );
     } else {
         eprintln!(
             "{} Registry is clean, nothing to prune",
-            "[worktree-compose]".green(),
+            "[treeyard]".green(),
         );
     }
 

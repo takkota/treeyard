@@ -18,7 +18,7 @@ CI runs `fmt --check`, `clippy -D warnings`, and `cargo test` on both Ubuntu and
 
 ## Architecture
 
-**worktree-compose (`wtc`)** is a CLI tool that resolves Docker Compose port collisions across multiple git worktrees. It assigns each worktree a slot number and offsets host ports by `base_port + (slot × step)`.
+**treeyard (`tyd`)** is a CLI tool that resolves Docker Compose port collisions across multiple git worktrees. It assigns each worktree a slot number and offsets host ports by `base_port + (slot × step)`.
 
 ### Module Layout
 
@@ -36,7 +36,7 @@ CI runs `fmt --check`, `clippy -D warnings`, and `cargo test` on both Ubuntu and
   - `docker` — thin wrapper around `docker` CLI commands
   - `worktree` — git worktree detection via `git rev-parse`
 
-### Central Flow (`wtc init`)
+### Central Flow (`tyd init`)
 
 1. Detect worktree info via git CLI → `WorktreeInfo`
 2. Parse `docker-compose.yml` → `ComposeInfo` (serde_yaml_ng with `${...}` pre-processing)
@@ -51,7 +51,7 @@ CI runs `fmt --check`, `clippy -D warnings`, and `cargo test` on both Ubuntu and
 - **YAML parsing with pre-processing**: `compose_parser` uses `serde_yaml_ng` to parse the YAML structure. Since `${VAR:-default}` is not valid YAML, the parser pre-processes the content by replacing `${...}` patterns with safe placeholders before parsing, then restores them when examining string values. Regex is still used for extracting port variables and project prefixes from the restored string values. YAML anchors (`&name`) and merge keys (`<<: *name`) are resolved via `apply_merge()`.
 - **YAML 1.2 compliance**: `serde_yaml_ng` follows YAML 1.2, which does not have YAML 1.1's sexagesimal number interpretation. Unquoted port mappings like `5432:5432` are correctly treated as strings.
 - **File locking**: `SlotRegistry` uses `fs2` for cross-process exclusive locking to prevent TOCTOU races when multiple worktrees init simultaneously.
-- **Two binary targets**: Both `worktree-compose` and `wtc` are built from the same `src/main.rs`.
+- **Two binary targets**: Both `treeyard` and `tyd` are built from the same `src/main.rs`.
 - **MSRV**: Requires Rust 1.80+ (uses `std::sync::LazyLock`).
 
 ## Testing

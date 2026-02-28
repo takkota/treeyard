@@ -65,7 +65,7 @@ fn strip_ansi(bytes: &[u8]) -> String {
 
 #[test]
 fn test_no_subcommand_shows_help() {
-    Command::cargo_bin("wtc")
+    Command::cargo_bin("tyd")
         .unwrap()
         .assert()
         .failure()
@@ -74,18 +74,18 @@ fn test_no_subcommand_shows_help() {
 
 #[test]
 fn test_version_flag() {
-    Command::cargo_bin("wtc")
+    Command::cargo_bin("tyd")
         .unwrap()
         .arg("--version")
         .assert()
         .success()
-        .stdout(predicate::str::contains("worktree-compose"));
+        .stdout(predicate::str::contains("treeyard"));
 }
 
 #[test]
 fn test_init_outside_git_repo() {
     let dir = TempDir::new().unwrap();
-    Command::cargo_bin("wtc")
+    Command::cargo_bin("tyd")
         .unwrap()
         .arg("init")
         .current_dir(dir.path())
@@ -119,7 +119,7 @@ fn test_init_without_compose_file() {
         .output()
         .unwrap();
 
-    Command::cargo_bin("wtc")
+    Command::cargo_bin("tyd")
         .unwrap()
         .arg("init")
         .current_dir(dir.path())
@@ -133,14 +133,14 @@ fn test_init_main_worktree() {
     let dir = TempDir::new().unwrap();
     setup_git_repo(dir.path());
 
-    let output = Command::cargo_bin("wtc")
+    let output = Command::cargo_bin("tyd")
         .unwrap()
         .arg("init")
         .current_dir(dir.path())
         .output()
-        .expect("failed to run wtc init");
+        .expect("failed to run tyd init");
 
-    assert!(output.status.success(), "wtc init should succeed");
+    assert!(output.status.success(), "tyd init should succeed");
 
     let stderr = strip_ansi(&output.stderr);
     assert!(stderr.contains("Slot 0 assigned"), "should assign slot 0");
@@ -169,7 +169,7 @@ fn test_init_idempotent() {
     let dir = TempDir::new().unwrap();
     setup_git_repo(dir.path());
 
-    Command::cargo_bin("wtc")
+    Command::cargo_bin("tyd")
         .unwrap()
         .arg("init")
         .current_dir(dir.path())
@@ -178,7 +178,7 @@ fn test_init_idempotent() {
 
     let env_first = fs::read_to_string(dir.path().join(".env")).unwrap();
 
-    Command::cargo_bin("wtc")
+    Command::cargo_bin("tyd")
         .unwrap()
         .arg("init")
         .current_dir(dir.path())
@@ -194,19 +194,19 @@ fn test_status_after_init() {
     let dir = TempDir::new().unwrap();
     setup_git_repo(dir.path());
 
-    Command::cargo_bin("wtc")
+    Command::cargo_bin("tyd")
         .unwrap()
         .arg("init")
         .current_dir(dir.path())
         .assert()
         .success();
 
-    let output = Command::cargo_bin("wtc")
+    let output = Command::cargo_bin("tyd")
         .unwrap()
         .arg("status")
         .current_dir(dir.path())
         .output()
-        .expect("failed to run wtc status");
+        .expect("failed to run tyd status");
 
     assert!(output.status.success());
     let stderr = strip_ansi(&output.stderr);
@@ -219,7 +219,7 @@ fn test_env_not_initialized() {
     let dir = TempDir::new().unwrap();
     setup_git_repo(dir.path());
 
-    Command::cargo_bin("wtc")
+    Command::cargo_bin("tyd")
         .unwrap()
         .arg("env")
         .current_dir(dir.path())
@@ -233,14 +233,14 @@ fn test_env_after_init() {
     let dir = TempDir::new().unwrap();
     setup_git_repo(dir.path());
 
-    Command::cargo_bin("wtc")
+    Command::cargo_bin("tyd")
         .unwrap()
         .arg("init")
         .current_dir(dir.path())
         .assert()
         .success();
 
-    Command::cargo_bin("wtc")
+    Command::cargo_bin("tyd")
         .unwrap()
         .arg("env")
         .current_dir(dir.path())
@@ -257,19 +257,19 @@ fn test_cleanup_after_init() {
     let dir = TempDir::new().unwrap();
     setup_git_repo(dir.path());
 
-    Command::cargo_bin("wtc")
+    Command::cargo_bin("tyd")
         .unwrap()
         .arg("init")
         .current_dir(dir.path())
         .assert()
         .success();
 
-    let output = Command::cargo_bin("wtc")
+    let output = Command::cargo_bin("tyd")
         .unwrap()
         .arg("cleanup")
         .current_dir(dir.path())
         .output()
-        .expect("failed to run wtc cleanup");
+        .expect("failed to run tyd cleanup");
 
     assert!(output.status.success());
     let stderr = strip_ansi(&output.stderr);
@@ -279,7 +279,7 @@ fn test_cleanup_after_init() {
     );
 
     // After cleanup, env should fail
-    Command::cargo_bin("wtc")
+    Command::cargo_bin("tyd")
         .unwrap()
         .arg("env")
         .current_dir(dir.path())
@@ -292,19 +292,19 @@ fn test_prune_no_stale() {
     let dir = TempDir::new().unwrap();
     setup_git_repo(dir.path());
 
-    Command::cargo_bin("wtc")
+    Command::cargo_bin("tyd")
         .unwrap()
         .arg("init")
         .current_dir(dir.path())
         .assert()
         .success();
 
-    let output = Command::cargo_bin("wtc")
+    let output = Command::cargo_bin("tyd")
         .unwrap()
         .arg("prune")
         .current_dir(dir.path())
         .output()
-        .expect("failed to run wtc prune");
+        .expect("failed to run tyd prune");
 
     assert!(output.status.success());
     let stderr = strip_ansi(&output.stderr);
@@ -321,12 +321,12 @@ fn test_init_with_custom_port_step() {
 
     fs::write(dir.path().join(".env"), "WORKTREE_PORT_STEP=100\n").unwrap();
 
-    let output = Command::cargo_bin("wtc")
+    let output = Command::cargo_bin("tyd")
         .unwrap()
         .arg("init")
         .current_dir(dir.path())
         .output()
-        .expect("failed to run wtc init");
+        .expect("failed to run tyd init");
 
     assert!(output.status.success());
     let stderr = strip_ansi(&output.stderr);
@@ -343,7 +343,7 @@ fn test_init_rejects_port_step_zero() {
 
     fs::write(dir.path().join(".env"), "WORKTREE_PORT_STEP=0\n").unwrap();
 
-    Command::cargo_bin("wtc")
+    Command::cargo_bin("tyd")
         .unwrap()
         .arg("init")
         .current_dir(dir.path())
@@ -357,7 +357,7 @@ fn test_hooks_install_and_uninstall() {
     let dir = TempDir::new().unwrap();
     setup_git_repo(dir.path());
 
-    let output = Command::cargo_bin("wtc")
+    let output = Command::cargo_bin("tyd")
         .unwrap()
         .args(["hooks", "install"])
         .current_dir(dir.path())
@@ -374,7 +374,7 @@ fn test_hooks_install_and_uninstall() {
     let hook_path = dir.path().join(".git/hooks/post-checkout");
     assert!(hook_path.exists());
 
-    let output = Command::cargo_bin("wtc")
+    let output = Command::cargo_bin("tyd")
         .unwrap()
         .args(["hooks", "uninstall"])
         .current_dir(dir.path())

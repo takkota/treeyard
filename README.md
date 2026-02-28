@@ -1,10 +1,10 @@
-# worktree-compose (`wtc`)
+# treeyard (`tyd`)
 
 複数の git worktree で Docker Compose 環境を同時起動する際の**ポート衝突を自動解決**する CLI ツール。
 
 main と各 linked worktree にスロット番号を割り当て、ポート番号を自動オフセットすることでポート衝突なしに並列稼働を実現する。
 
-> **Note:** `worktree-compose` コマンドは短縮形 `wtc` でも実行できる。以降の例では `wtc` を使用する。
+> **Note:** `treeyard` コマンドは短縮形 `tyd` でも実行できる。以降の例では `tyd` を使用する。
 
 ## 主な機能
 
@@ -12,7 +12,7 @@ main と各 linked worktree にスロット番号を割り当て、ポート番�
 - **共有ネットワーク** — `docker-compose.override.yml` を生成し、worktree 間で Docker ネットワークを共有
 - **共有サービス** — DB など 1 つだけ起動すれば十分なサービスを main に集約
 - **スロットレジストリ** — ファイルロックによる排他制御で、複数 worktree の同時 init も安全
-- **自動初期化フック** — `git worktree add` 時に自動で `wtc init` を実行
+- **自動初期化フック** — `git worktree add` 時に自動で `tydinit` を実行
 
 ## 使い方
 
@@ -24,25 +24,25 @@ git worktree add ../feature-branch
 
 # linked worktree で初期化（slot 1、ポートがオフセットされる）
 cd ../feature-branch
-wtc init
+tydinit
 
 # それぞれで docker compose up -d（ポート衝突なし）
 docker compose up -d
 ```
 
-> linked worktree で `wtc init` を実行すると、main 側の初期化（`docker-compose.override.yml` の生成など）も自動で行われる。main で `wtc init` を明示的に実行する必要はない。
+> linked worktree で `tydinit` を実行すると、main 側の初期化（`docker-compose.override.yml` の生成など）も自動で行われる。main で `tydinit` を明示的に実行する必要はない。
 
 ### コマンド一覧
 
 | コマンド | 説明 |
 |---|---|
-| `wtc init` | ポート割当 + .env 更新 + override.yml 生成 |
-| `wtc status` | 全 worktree のスロット・ポート・コンテナ状態を表示 |
-| `wtc env` | 計算済み環境変数を stdout に出力（スクリプト連携用） |
-| `wtc cleanup` | 現在の worktree をレジストリから削除 |
-| `wtc prune` | 存在しない worktree のエントリを掃除 |
-| `wtc hooks install` | post-checkout フックを設置（worktree 作成時に自動 init） |
-| `wtc hooks uninstall` | フックを削除 |
+| `tydinit` | ポート割当 + .env 更新 + override.yml 生成 |
+| `tydstatus` | 全 worktree のスロット・ポート・コンテナ状態を表示 |
+| `tydenv` | 計算済み環境変数を stdout に出力（スクリプト連携用） |
+| `tydcleanup` | 現在の worktree をレジストリから削除 |
+| `tydprune` | 存在しない worktree のエントリを掃除 |
+| `tydhooks install` | post-checkout フックを設置（worktree 作成時に自動 init） |
+| `tydhooks uninstall` | フックを削除 |
 
 ### オプション
 
@@ -81,7 +81,7 @@ docker compose up -d
   └─────────────────────┴──────┴───────────┴───────────┘
 ```
 
-### `wtc init` の処理フロー
+### `tydinit` の処理フロー
 
 ```
   docker-compose.yml
@@ -183,17 +183,17 @@ WORKTREE_SHARED_SERVICES=postgres,redis
 ### 自動初期化フック
 
 ```bash
-wtc hooks install
+tydhooks install
 ```
 
-`git worktree add` で新しい worktree を作成した際に、自動で `wtc init` が実行される。
+`git worktree add` で新しい worktree を作成した際に、自動で `tydinit` が実行される。
 
 ## インストール
 
 ### ワンライナー（推奨）
 
 ```bash
-gh api repos/takkota/worktree-compose/contents/install.sh --jq .content -H 'Accept: application/vnd.github.v3+json' | base64 -d | bash
+gh api repos/takkota/treeyard/contents/install.sh --jq .content -H 'Accept: application/vnd.github.v3+json' | base64 -d | bash
 ```
 
 PATH が通った場所（`~/.cargo/bin` または `~/.local/bin`）に自動でインストールされる。
@@ -201,8 +201,8 @@ PATH が通った場所（`~/.cargo/bin` または `~/.local/bin`）に自動で
 ### ソースからビルド
 
 ```bash
-git clone ssh://git@github.com/takkota/worktree-compose.git
-cd worktree-compose
+git clone ssh://git@github.com/takkota/treeyard.git
+cd treeyard
 make install
 ```
 
@@ -215,10 +215,10 @@ make install PREFIX=/usr/local
 ### GitHub Releases バイナリ
 
 ```bash
-gh release download v0.1.0 -R takkota/worktree-compose -p 'worktree-compose-aarch64-darwin' -p 'wtc-aarch64-darwin'
-chmod +x worktree-compose-aarch64-darwin wtc-aarch64-darwin
-mv worktree-compose-aarch64-darwin ~/.local/bin/worktree-compose
-mv wtc-aarch64-darwin ~/.local/bin/wtc
+gh release download v0.1.0 -R takkota/treeyard -p 'treeyard-aarch64-darwin' -p 'tyd-aarch64-darwin'
+chmod +x treeyard-aarch64-darwin tyd-aarch64-darwin
+mv treeyard-aarch64-darwin ~/.local/bin/treeyard
+mv tyd-aarch64-darwin ~/.local/bin/tyd
 ```
 
 ## 動作要件

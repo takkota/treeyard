@@ -7,20 +7,20 @@ use std::process::Command;
 
 use crate::core::worktree;
 
-const HOOK_MARKER: &str = "# worktree-compose-managed-hook";
+const HOOK_MARKER: &str = "# treeyard-managed-hook";
 
 const HOOK_SCRIPT: &str = r#"#!/usr/bin/env bash
-# worktree-compose-managed-hook
-# Auto-initialize worktree-compose on new worktree creation.
-# Installed by: worktree-compose hooks install
+# treeyard-managed-hook
+# Auto-initialize treeyard on new worktree creation.
+# Installed by: treeyard hooks install
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
 
 # Only run if docker-compose.yml exists
 [[ -f "${REPO_ROOT}/docker-compose.yml" ]] || exit 0
 
-# Require worktree-compose in PATH
-command -v worktree-compose &>/dev/null || exit 0
+# Require treeyard in PATH
+command -v treeyard &>/dev/null || exit 0
 
 # Skip if this worktree already has a slot
 CURRENT_PATH="$(cd "$REPO_ROOT" && pwd -P)"
@@ -36,8 +36,8 @@ if [[ -f "$REGISTRY" ]] && grep -qF "$CURRENT_PATH" "$REGISTRY"; then
 fi
 
 echo ""
-echo "[worktree-compose] New worktree detected, initializing..."
-worktree-compose init
+echo "[treeyard] New worktree detected, initializing..."
+treeyard init
 echo ""
 "#;
 
@@ -49,7 +49,7 @@ pub fn install() -> Result<()> {
     fs::create_dir_all(&hooks_dir)
         .with_context(|| format!("failed to create hooks dir: {}", hooks_dir.display()))?;
 
-    // Check for existing non-worktree-compose hook
+    // Check for existing non-treeyard hook
     if hook_file.exists() {
         let content = fs::read_to_string(&hook_file)?;
         if !content.contains(HOOK_MARKER) {
@@ -70,13 +70,13 @@ pub fn install() -> Result<()> {
 
     eprintln!(
         "{} Installed post-checkout hook: {}",
-        "[worktree-compose]".green(),
+        "[treeyard]".green(),
         hook_file.display()
     );
     eprintln!(
         "{} New worktrees will auto-run {}",
-        "[worktree-compose]".blue(),
-        "worktree-compose init".bold()
+        "[treeyard]".blue(),
+        "treeyard init".bold()
     );
 
     Ok(())
@@ -90,7 +90,7 @@ pub fn uninstall() -> Result<()> {
     if !hook_file.exists() {
         eprintln!(
             "{} No post-checkout hook found at {}",
-            "[worktree-compose]".yellow(),
+            "[treeyard]".yellow(),
             hook_file.display()
         );
         return Ok(());
@@ -99,7 +99,7 @@ pub fn uninstall() -> Result<()> {
     let content = fs::read_to_string(&hook_file)?;
     if !content.contains(HOOK_MARKER) {
         anyhow::bail!(
-            "Hook at {} was not installed by worktree-compose. Refusing to remove.",
+            "Hook at {} was not installed by treeyard. Refusing to remove.",
             hook_file.display()
         );
     }
@@ -109,7 +109,7 @@ pub fn uninstall() -> Result<()> {
 
     eprintln!(
         "{} Removed post-checkout hook: {}",
-        "[worktree-compose]".green(),
+        "[treeyard]".green(),
         hook_file.display()
     );
 
