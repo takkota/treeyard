@@ -373,6 +373,11 @@ fn test_hooks_install_and_uninstall() {
 
     let hook_path = dir.path().join(".git/hooks/post-checkout");
     assert!(hook_path.exists());
+    let hook_content = fs::read_to_string(&hook_path).unwrap();
+    assert!(
+        !hook_content.contains("--auto-prune"),
+        "default install should not include --auto-prune"
+    );
 
     let output = Command::cargo_bin("tyd")
         .unwrap()
@@ -386,5 +391,85 @@ fn test_hooks_install_and_uninstall() {
     assert!(
         stderr.contains("Removed post-checkout hook"),
         "should confirm uninstall"
+    );
+}
+
+#[test]
+fn test_hooks_install_with_auto_prune() {
+    let dir = TempDir::new().unwrap();
+    setup_git_repo(dir.path());
+
+    let output = Command::cargo_bin("tyd")
+        .unwrap()
+        .args(["hooks", "install", "--auto-prune"])
+        .current_dir(dir.path())
+        .output()
+        .expect("failed to run hooks install --auto-prune");
+
+    assert!(output.status.success());
+    let stderr = strip_ansi(&output.stderr);
+    assert!(
+        stderr.contains("treeyard init --auto-prune"),
+        "should show auto-prune in message"
+    );
+
+    let hook_path = dir.path().join(".git/hooks/post-checkout");
+    let hook_content = fs::read_to_string(&hook_path).unwrap();
+    assert!(
+        hook_content.contains("treeyard init --auto-prune"),
+        "hook script should include --auto-prune flag"
+    );
+}
+
+#[test]
+fn test_init_auto_prune_removes_stale_entries() {
+    let dir = TempDir::new().unwrap();
+    setup_git_repo(dir.path());
+
+    // First, init to register this worktree
+    Command::cargo_bin("tyd")
+        .unwrap()
+        .arg("init")
+        .current_dir(dir.path())
+        .assert()
+        .success();
+
+    // Manually add a stale entry to the registry (path that doesn't exist)
+    let registry_path = dir.path().join(".git/worktree-slots");
+    let existing = fs::read_to_string(&registry_path).unwrap();
+    fs::write(
+        &registry_path,
+        format!(
+            "{}/nonexistent/worktree\t1\n{}",
+            dir.path().display(),
+            existing
+        ),
+    )
+    .unwrap();
+
+    // Verify stale entry is present
+    let content = fs::read_to_string(&registry_path).unwrap();
+    assert!(content.contains("/nonexistent/worktree"));
+
+    // Run init with --auto-prune
+    let output = Command::cargo_bin("tyd")
+        .unwrap()
+        .args(["init", "--auto-prune"])
+        .current_dir(dir.path())
+        .output()
+        .expect("failed to run tyd init --auto-prune");
+
+    assert!(output.status.success());
+    let stderr = strip_ansi(&output.stderr);
+    assert!(
+        stderr.contains("Pruned stale slot 1"),
+        "should report pruned stale entry"
+    );
+
+    // Verify stale entry was removed from registry
+    let content = fs::read_to_string(&registry_path).unwrap();
+    assert!(
+        !content.contains("/nonexistent/worktree"),
+        "stale entry should be removed"
     );
 }

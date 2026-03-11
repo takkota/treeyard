@@ -10,13 +10,13 @@ fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match &cli.command {
-        Commands::Init => commands::init::run(&cli)?,
+        Commands::Init { auto_prune } => commands::init::run(&cli, *auto_prune)?,
         Commands::Status => commands::status::run(&cli)?,
         Commands::Env => commands::env::run(&cli)?,
         Commands::Cleanup => commands::cleanup::run()?,
         Commands::Prune => commands::prune::run()?,
         Commands::Hooks { command } => match command {
-            HooksCommand::Install => commands::hooks::install()?,
+            HooksCommand::Install { auto_prune } => commands::hooks::install(*auto_prune)?,
             HooksCommand::Uninstall => commands::hooks::uninstall()?,
         },
     }

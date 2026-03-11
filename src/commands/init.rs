@@ -10,7 +10,7 @@ use crate::core::{
 
 const DEFAULT_PORT_STEP: u16 = 10;
 
-pub fn run(cli: &Cli) -> Result<()> {
+pub fn run(cli: &Cli, auto_prune: bool) -> Result<()> {
     let wt = worktree::WorktreeInfo::detect()?;
 
     // Resolve compose file
@@ -170,6 +170,20 @@ pub fn run(cli: &Cli) -> Result<()> {
     // Load slot registry and assign slot
     let mut registry = slot_registry::SlotRegistry::load_locked(&wt.git_common_dir)
         .context("failed to load slot registry")?;
+
+    // Auto-prune stale entries before assigning a slot
+    if auto_prune {
+        let pruned = registry.prune_stale();
+        for entry in &pruned {
+            eprintln!(
+                "{} Pruned stale slot {}: {}",
+                "[treeyard]".yellow(),
+                entry.slot,
+                entry.path.display()
+            );
+        }
+    }
+
     let slot = registry.assign_slot(&wt.path, &main_root);
     registry.save().context("failed to save slot registry")?;
 

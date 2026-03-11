@@ -19,7 +19,11 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Commands {
     /// Initialize port assignments for this worktree
-    Init,
+    Init {
+        /// Automatically prune stale worktree entries before assigning a slot
+        #[arg(long)]
+        auto_prune: bool,
+    },
     /// Show all worktrees and their port/container status
     Status,
     /// Print computed environment variables
@@ -38,7 +42,11 @@ pub enum Commands {
 #[derive(Subcommand)]
 pub enum HooksCommand {
     /// Install post-checkout hook for auto-initialization
-    Install,
+    Install {
+        /// Include --auto-prune flag in the hook script
+        #[arg(long)]
+        auto_prune: bool,
+    },
     /// Remove the post-checkout hook
     Uninstall,
 }
