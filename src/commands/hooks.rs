@@ -9,7 +9,7 @@ use crate::core::worktree;
 
 const HOOK_MARKER: &str = "# treeyard-managed-hook";
 
-const HOOK_SCRIPT: &str = r#"#!/usr/bin/env bash
+const HOOK_SCRIPT_TEMPLATE: &str = r#"#!/usr/bin/env bash
 # treeyard-managed-hook
 # Auto-initialize treeyard on new worktree creation.
 # Installed by: treeyard hooks install
@@ -37,11 +37,16 @@ fi
 
 echo ""
 echo "[treeyard] New worktree detected, initializing..."
-treeyard init
+treeyard init{{AUTO_PRUNE_FLAG}}
 echo ""
 "#;
 
-pub fn install() -> Result<()> {
+fn hook_script(auto_prune: bool) -> String {
+    let flag = if auto_prune { " --auto-prune" } else { "" };
+    HOOK_SCRIPT_TEMPLATE.replace("{{AUTO_PRUNE_FLAG}}", flag)
+}
+
+pub fn install(auto_prune: bool) -> Result<()> {
     let wt = worktree::WorktreeInfo::detect()?;
     let hooks_dir = resolve_hooks_dir(&wt)?;
     let hook_file = hooks_dir.join("post-checkout");
@@ -60,7 +65,8 @@ pub fn install() -> Result<()> {
         }
     }
 
-    fs::write(&hook_file, HOOK_SCRIPT)
+    let script = hook_script(auto_prune);
+    fs::write(&hook_file, script)
         .with_context(|| format!("failed to write hook: {}", hook_file.display()))?;
 
     // Make executable
@@ -73,10 +79,15 @@ pub fn install() -> Result<()> {
         "[treeyard]".green(),
         hook_file.display()
     );
+    let init_cmd = if auto_prune {
+        "treeyard init --auto-prune"
+    } else {
+        "treeyard init"
+    };
     eprintln!(
         "{} New worktrees will auto-run {}",
         "[treeyard]".blue(),
-        "treeyard init".bold()
+        init_cmd.bold()
     );
 
     Ok(())
