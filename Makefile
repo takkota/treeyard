@@ -15,8 +15,9 @@ build:
 install: build
 	@mkdir -p $(PREFIX)/bin
 	cp target/release/treeyard $(PREFIX)/bin/treeyard
-	@echo "Installed to $(PREFIX)/bin/treeyard"
+	cp target/release/tyd $(PREFIX)/bin/tyd
+	@echo "Installed to $(PREFIX)/bin/{treeyard,tyd}"
 
 uninstall:
-	rm -f $(PREFIX)/bin/treeyard
-	@echo "Removed $(PREFIX)/bin/treeyard"
+	rm -f $(PREFIX)/bin/treeyard $(PREFIX)/bin/tyd
+	@echo "Removed $(PREFIX)/bin/{treeyard,tyd}"
