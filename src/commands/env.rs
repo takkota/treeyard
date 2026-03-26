@@ -37,12 +37,7 @@ pub fn run(cli: &Cli) -> Result<()> {
     let project_name = if slot == 0 {
         project_prefix
     } else {
-        let dir_name = wt
-            .path
-            .file_name()
-            .map(|n| n.to_string_lossy().to_string())
-            .unwrap_or_else(|| format!("wt{slot}"));
-        format!("{project_prefix}-{dir_name}")
+        format!("{project_prefix}-wt{slot}")
     };
 
     println!("COMPOSE_PROJECT_NAME={project_name}");

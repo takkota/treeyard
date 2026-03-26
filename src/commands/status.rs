@@ -100,12 +100,7 @@ pub fn run(cli: &Cli) -> Result<()> {
             let project_name = if entry.slot == 0 {
                 project_prefix.clone()
             } else {
-                let dir_name = entry
-                    .path
-                    .file_name()
-                    .map(|n| n.to_string_lossy().to_string())
-                    .unwrap_or_default();
-                format!("{project_prefix}-{dir_name}")
+                format!("{project_prefix}-wt{}", entry.slot)
             };
 
             match docker::running_container_count(&project_name) {
