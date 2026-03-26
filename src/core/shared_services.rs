@@ -8,10 +8,12 @@ const SHARED_PROFILE: &str = "_wt_main_only";
 /// This ensures all worktrees share a consistent view of which services are shared.
 pub fn load_shared_services(wt: &WorktreeInfo) -> Vec<String> {
     let main_root = wt.main_worktree_root();
+    let local_path = main_root.join(".env.local");
     let env_path = main_root.join(".env");
     let example_path = main_root.join(".env.example");
 
-    let val = read_shared_var(&env_path)
+    let val = read_shared_var(&local_path)
+        .or_else(|| read_shared_var(&env_path))
         .or_else(|| read_shared_var(&example_path))
         .unwrap_or_default();
 
