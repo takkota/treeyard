@@ -55,6 +55,23 @@ pub fn running_container_count(project_name: &str) -> Option<usize> {
     Some(stdout.lines().filter(|l| !l.trim().is_empty()).count())
 }
 
+/// Run `docker compose down` in the given directory to stop and remove containers.
+/// Returns Ok(true) if successful, Ok(false) if docker is unavailable.
+pub fn compose_down(working_dir: &std::path::Path) -> anyhow::Result<bool> {
+    if !is_docker_available() {
+        return Ok(false);
+    }
+
+    let status = Command::new("docker")
+        .args(["compose", "down"])
+        .current_dir(working_dir)
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()?;
+
+    Ok(status.success())
+}
+
 fn is_docker_available() -> bool {
     Command::new("docker")
         .arg("version")
