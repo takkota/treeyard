@@ -72,6 +72,31 @@ pub fn compose_down(working_dir: &std::path::Path) -> anyhow::Result<bool> {
     Ok(status.success())
 }
 
+/// Run `docker compose down` for a given project name (no working directory needed).
+/// This is used when the worktree directory no longer exists.
+/// Returns Ok(true) if successful, Ok(false) if docker is unavailable.
+/// Returns Err if docker is available but `compose down` fails.
+pub fn compose_down_project(project_name: &str) -> anyhow::Result<bool> {
+    if !is_docker_available() {
+        return Ok(false);
+    }
+
+    let status = Command::new("docker")
+        .args(["compose", "-p", project_name, "down"])
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()?;
+
+    if status.success() {
+        Ok(true)
+    } else {
+        anyhow::bail!(
+            "docker compose down failed for project '{project_name}' (exit code: {})",
+            status.code().map_or("unknown".to_string(), |c| c.to_string())
+        );
+    }
+}
+
 fn is_docker_available() -> bool {
     Command::new("docker")
         .arg("version")

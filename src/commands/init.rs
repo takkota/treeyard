@@ -175,6 +175,38 @@ pub fn run(cli: &Cli, auto_prune: bool) -> Result<()> {
     if auto_prune {
         let pruned = registry.prune_stale();
         for entry in &pruned {
+            // Skip stopping containers for slot 0 (main worktree) to avoid
+            // accidentally taking down the main project on a corrupted registry.
+            if entry.slot == 0 {
+                eprintln!(
+                    "{} Pruned stale slot {}: {}",
+                    "[treeyard]".yellow(),
+                    entry.slot,
+                    entry.path.display()
+                );
+                continue;
+            }
+
+            // Stop containers for the stale worktree using its project name
+            let stale_project = format!("{project_prefix}-wt{}", entry.slot);
+            match docker::compose_down_project(&stale_project) {
+                Ok(true) => {
+                    eprintln!(
+                        "{} Stopped containers for stale project: {}",
+                        "[treeyard]".yellow(),
+                        stale_project
+                    );
+                }
+                Ok(false) => {}
+                Err(e) => {
+                    eprintln!(
+                        "{} Failed to stop containers for {}: {}",
+                        "[treeyard]".yellow(),
+                        stale_project,
+                        e
+                    );
+                }
+            }
             eprintln!(
                 "{} Pruned stale slot {}: {}",
                 "[treeyard]".yellow(),
