@@ -18,11 +18,7 @@ pub fn run() -> Result<()> {
             );
         }
         Err(e) => {
-            eprintln!(
-                "{} Failed to stop containers: {}",
-                "[treeyard]".yellow(),
-                e
-            );
+            eprintln!("{} Failed to stop containers: {}", "[treeyard]".yellow(), e);
         }
     }
 
